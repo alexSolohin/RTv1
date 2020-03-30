@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/03/18 12:31:34 by user             ###   ########.fr       */
+/*   Updated: 2020/03/30 11:23:56 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,13 +95,13 @@ t_color	get_color(int x, int y)
 int		ray_intersect(t_vector orig, t_vector dir, float t0, t_sphere sphere)
 {
 
-	
+
 	t_vector	L;
 	L = vec_sub(sphere.center, orig);
 	// printf("%f %f %f\n", L.x, L.y, L.z);
 	float tca = vec_dot(L, dir);
 	float d2 = vec_dot(L, L) - tca * tca;
-	printf("%f %f\n", tca, d2);
+	// printf("%f %f\n", tca, d2);
 	if (d2 > sphere.radius * sphere.radius)
 		return (0);
 	float thc = sqrtf(sphere.radius * sphere.radius - d2);
@@ -177,7 +177,7 @@ int		main()
 			// printf("%f %f %f\n", dir.x, dir.y, dir.z);
 			vector = cast_ray(origin, dir, sphere);
 			// printf("%f %f %f\n", vector.x, vector.y, vector.z);
-			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), 255 * (vector.x / ((float)WIDTH * 2)), 0,
+			SDL_SetRenderDrawColor(rtv1->rend, 255 * (j / ((float)HEIGHT * 2)), 255 * (i / ((float)WIDTH * 2)), 0,
 									255);
 			SDL_RenderDrawPoint(rtv1->rend, i, j);
 			i++;

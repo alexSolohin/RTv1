@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 08:05:31 by user              #+#    #+#             */
-/*   Updated: 2020/03/17 16:37:21 by user             ###   ########.fr       */
+/*   Updated: 2020/03/25 16:49:07 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,7 +178,7 @@ void	ray_trace(t_rtv1 *rtv1)
 	while (x < WIDTH)
 	{
 		y = 0;
-		while(y < HEIGHT)
+		while(y < )
 		{
 			D = canvas_to_viewport(x, y, 10);
 			color = trace_ray(o, D, 1, 10000);
