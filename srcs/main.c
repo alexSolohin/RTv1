@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/03/30 18:58:59 by user             ###   ########.fr       */
+/*   Updated: 2020/03/30 20:09:24 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,74 +59,47 @@ t_vector	vec_norm(t_vector v)
 	return (vec_scale(v, 1.0 / vec_magn(v)));
 }
 
-// int		main(int ac, char **av)
-// {
-// 	t_rtv1	*rtv1;
-
-// 	av = 0;
-// 	ac = 2;
-// 	if (!(rtv1 = (t_rtv1 *)malloc(sizeof(t_rtv1))))
-// 		exit(0);
-// 	if (ac == 2)
-// 	{
-// 		rtv1->mlx = mlx_init();
-// 		ft_mlx_win_init(rtv1);
-// 		init_hook(rtv1);
-// 		draw(rtv1);
-// 		draw_button(rtv1);
-// 		mlx_loop(rtv1->mlx);
-// 	}
-// 	return (0);
-// }
-
-t_color	get_color(int x, int y)
-{
-	t_color	color;
-
-	// x = 0;
-	// y = 0;
-	color.channel[0] = 0;
-	color.channel[1] =
-		(255 * y);
-	color.channel[2] =
-		(225 * x);
-	color.channel[3] =
-		(0);
-	return (color);
-}
-
-
-
 int		ray_intersect(t_vector orig, t_vector dir, t_sphere sphere)
 {
-	t_vector point;
-	float t; // множество точек на луче
-
-	t = 0;
+	float k1;
+	float k2;
+	float k3;
+	float discriminant;
+	t_vector OC;
 	// dir - точка на луче;
-	// point - точка на луче
-	point = vec_add(orig, vec_scale(dir, t));
-	vec_sub(point, sphere.center);
-	return (0);
+
+	printf("x = %f y = %f z = %f\n", orig.x, orig.y, orig.z);
+	printf("x = %f y = %f z = %f\n", sphere.center.x, sphere.center.y, sphere.center.z);
+	OC = vec_sub(orig, sphere.center);
+	printf("x = %f y = %f z = %f\n", OC.x, OC.y, OC.z);
+	k1 = vec_dot(dir, dir);
+	k2 = vec_dot(OC, dir) * 2;
+	k3 = vec_dot(OC, OC) - sphere.radius * sphere.radius;
+	printf("k1 = %f, k2 = %f, k3 = %f \n", k1, k2, k3);
+	discriminant = k2 * k2 - 4*k1*k3; // !!!axtung!!! - дискриминант постоянно меньше нуля
+	printf("%f\n", discriminant);
+	if (discriminant < 0)
+		return (0);
+	else
+		return (1);
 }
 
 t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
 {
 	t_vector vector;
 
-	vector.x = 0.4;
-	vector.y = 0.4;
-	vector.z = 0.3;
+	vector.x = 1400;
+	vector.y = 700;
+	vector.z = 300;
 	if (!ray_intersect(orig, dir, sphere))
 	{
-		vector.x = 0.2;
-		vector.y = 0.7;
-		vector.z = 0.8;
+		vector.x = 300;
+		vector.y = 700;
+		vector.z = 1400;
 		return (vector);
 	}
 	return (vector);
 }
-
 void		init_sdl(t_rtv1 *rtv1)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) >= 0)
@@ -146,30 +119,26 @@ int		main()
 	size_t i;
 	t_vector origin;
 	t_sphere sphere;
-	// t_color		color;
-	// int	fov = M_PI/2;
 	t_vector vector;
 	t_vector dir;
 
 
-	sphere.center.x = 500;
-	sphere.center.y = 500;
-	sphere.center.z = 160;
-	sphere.radius = 100;
-	float t;
+	sphere.center.x = 0;
+	sphere.center.y = -1;
+	sphere.center.z = 3;
+	sphere.radius = 1;
 
 	// origin - точка из которой смотрим
 	origin.x = 0;
 	origin.y = 0;
 	origin.z = 0;
-	t = 0;
 	rtv1 = (t_rtv1 *)malloc(sizeof(t_rtv1));
 	init_sdl(rtv1);
 	j = 0;
-	while (j < HEIGHT * 2)
+	while (j < 1) // HEIGHT * 2
 	{
 		i =  0;
-		while (i < WIDTH * 2)
+		while (i < 3) // WIDTH * 2
 		{
 			// dir - это луч из точки камеры в напраление к сфере
 			dir.x = i;
@@ -177,7 +146,7 @@ int		main()
 			dir.z = -1;
 			vector = cast_ray(origin, dir, sphere);
 			// printf("x = %f y = %f z = %f\n", vector.x, vector.y, vector.z);
-			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), 255 * (vector.x / ((float)WIDTH * 2)), 255 * (vector.z / ((float)WIDTH * 2)),
+			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), vector.x * (255 / ((float)WIDTH * 2)), vector.z * (100 / ((float)WIDTH * 2)),
 									255);
 			SDL_RenderDrawPoint(rtv1->rend, i, j);
 			i++;
