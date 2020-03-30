@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/03/30 11:23:56 by user             ###   ########.fr       */
+/*   Updated: 2020/03/30 18:56:25 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,11 @@
 #include "rtv1.h"
 #include <stdio.h>
 #include "SDL.h"
+
+float	vec_len(t_vector a)
+{
+	return (sqrt(pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2)));
+}
 
 float	vec_dot(t_vector a, t_vector b)
 {
@@ -92,26 +97,21 @@ t_color	get_color(int x, int y)
 
 
 
-int		ray_intersect(t_vector orig, t_vector dir, float t0, t_sphere sphere)
+int		ray_intersect(t_vector orig, t_vector dir, t_sphere sphere)
 {
+	t_vector vpc;
+	t_vector point;
+	t_vector d;
+	float t; // множество точек на луче
+	t_vector intersection;
 
-
-	t_vector	L;
-	L = vec_sub(sphere.center, orig);
-	// printf("%f %f %f\n", L.x, L.y, L.z);
-	float tca = vec_dot(L, dir);
-	float d2 = vec_dot(L, L) - tca * tca;
-	// printf("%f %f\n", tca, d2);
-	if (d2 > sphere.radius * sphere.radius)
-		return (0);
-	float thc = sqrtf(sphere.radius * sphere.radius - d2);
-	t0 = tca - thc;
-	float t1 = tca + thc;
-	if (t0 < 0)
-		t0 = t1;
-	if (t0 < 0)
-		return (0);
-	return (1);
+	float tca;
+	float d2;
+	float t_max;
+	// dir - точка на луче;
+	// point - точка на луче
+	point = vec_add(orig, vec_scale(dir, t));
+	sphere.radius = vec_sub(point, sphere.center);
 }
 
 t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
@@ -121,8 +121,7 @@ t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
 	vector.x = 0.4;
 	vector.y = 0.4;
 	vector.z = 0.3;
-	float sphere_dist = 10000000;
-	if (!ray_intersect(orig, dir, sphere_dist, sphere))
+	if (!ray_intersect(orig, dir, sphere))
 	{
 		vector.x = 0.2;
 		vector.y = 0.7;
@@ -130,6 +129,17 @@ t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
 		return (vector);
 	}
 	return (vector);
+}
+
+void		init_sdl(t_rtv1 *rtv1)
+{
+	if (SDL_Init(SDL_INIT_EVERYTHING) >= 0)
+		if ((rtv1->window = SDL_CreateWindow("RTv1", SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN))) // SDL_WINDOW_FULLSCREEN
+			if (!(rtv1->rend = SDL_CreateRenderer(rtv1->window, -1,
+			SDL_RENDERER_ACCELERATED)))
+				printf("no");
+	SDL_SetRenderDrawBlendMode(rtv1->rend, SDL_BLENDMODE_BLEND);
 }
 
 int		main()
@@ -146,47 +156,40 @@ int		main()
 	t_vector dir;
 
 
-	sphere.center.x = 3;
-	sphere.center.y = 0;
-	sphere.center.z = 16;
-	sphere.radius = 2;
+	sphere.center.x = 500;
+	sphere.center.y = 500;
+	sphere.center.z = 160;
+	sphere.radius = 100;
+	float t;
 
+	// origin - точка из которой смотрим
 	origin.x = 0;
 	origin.y = 0;
 	origin.z = 0;
+	t = 0;
 	rtv1 = (t_rtv1 *)malloc(sizeof(t_rtv1));
-	if (SDL_Init(SDL_INIT_EVERYTHING) >= 0)
-		if ((rtv1->window = SDL_CreateWindow("RTv1", SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN))) // SDL_WINDOW_FULLSCREEN
-			if (!(rtv1->rend = SDL_CreateRenderer(rtv1->window, -1,
-			SDL_RENDERER_ACCELERATED)))
-				printf("no");
-	SDL_SetRenderDrawBlendMode(rtv1->rend, SDL_BLENDMODE_BLEND);
+	init_sdl(rtv1);
 	j = 0;
 	while (j < HEIGHT * 2)
 	{
 		i =  0;
 		while (i < WIDTH * 2)
 		{
-			// float x = (2 * (i + 0.5) / (float)WIDTH) * tan(fov / 2.) * (float)WIDTH / (float)HEIGHT;
-			// float y = (2 * (j + 0.5) / (float)HEIGHT) * tan(fov / 2.);
-			// printf("%f %f\n", x, y);
+			// dir - это луч из точки камеры в напраление к сфере
 			dir.x = i;
 			dir.y = j;
 			dir.z = -1;
-			// printf("%f %f %f\n", dir.x, dir.y, dir.z);
 			vector = cast_ray(origin, dir, sphere);
-			// printf("%f %f %f\n", vector.x, vector.y, vector.z);
-			SDL_SetRenderDrawColor(rtv1->rend, 255 * (j / ((float)HEIGHT * 2)), 255 * (i / ((float)WIDTH * 2)), 0,
+			// printf("x = %f y = %f z = %f\n", vector.x, vector.y, vector.z);
+			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), 255 * (vector.x / ((float)WIDTH * 2)), 255 * (vector.z / ((float)WIDTH * 2)),
 									255);
 			SDL_RenderDrawPoint(rtv1->rend, i, j);
 			i++;
 		}
 		j++;
 	}
-	// circle(rtv1);
 	SDL_RenderPresent(rtv1->rend);
-	while (1)
+	while (1) 								//event on keyboard
 		while (SDL_PollEvent(&event))
 			if (event.type == SDL_QUIT ||
 				(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
@@ -194,59 +197,3 @@ int		main()
 	return (0);
 }
 
-// int		main()
-// {
-// 	SDL_Init(SDL_INIT_EVERYTHING);
-
-// 	SDL_Surface *screen;
-// 	SDL_Window *window;
-
-// 	screen = NULL;
-// 	window = SDL_CreateWindow("rtv1", SDL_WINDOWPOS_UNDEFINED,
-// 								SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT,
-// 								SDL_WINDOW_SHOWN);
-// 	// if (window == NULL)
-// 	// 	return (1);
-
-// 	screen = SDL_GetWindowSurface(window);
-// 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 255, 0));
-// 	SDL_UpdateWindowSurface(window);
-// 	SDL_Delay(2000);
-// 	SDL_DestroyWindow(window);
-// 	SDL_Quit();
-// }
-
-
-void	circle(t_rtv1 *rtv1)
-{
-	int x;
-	int y;
-	double r;
-	double d;
-	// t_color	color;
-
-	r = 160;
-	y = 0;
-	while (y < r * 2)
-	{
-		x = 0;
-		while (x < r * 2)
-		{
-			d = sqrt((double)(y - r) * (y - r) + (x - r) * (x -r));
-			if (d < r)
-			{
-				SDL_SetRenderDrawColor(rtv1->rend, 100, 88, 255,
-									100);
-				SDL_RenderDrawPoint(rtv1->rend, x, y);
-			}
-			if (d < r + 0.5 && d > r - 0.5)
-			{
-				SDL_SetRenderDrawColor(rtv1->rend, 0, 0, 0,
-									255);
-				SDL_RenderDrawPoint(rtv1->rend, x, y);
-			}
-			x++;
-		}
-		y++;
-	}
-}

@@ -6,13 +6,15 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:34:07 by user              #+#    #+#             */
-/*   Updated: 2020/03/17 21:00:43 by user             ###   ########.fr       */
+/*   Updated: 2020/03/30 17:46:33 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RTV1_H
 # define RTV1_H
 
+
+# define ABS(a) (((a) < 0) ? -(a) : (a))
 # define VHEIGHT	1200
 # define VWIDTH		1900
 # define WIDTH		1900
@@ -41,14 +43,6 @@ typedef struct	s_vector
 	float		y;
 	float		z;
 }				t_vector;
-
-typedef struct s_viewport
-{
-	double	x;
-	double	y;
-	int		d;
-}				t_viewport;
-
 
 typedef	struct		s_color
 {
