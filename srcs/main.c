@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/03/30 18:56:25 by user             ###   ########.fr       */
+/*   Updated: 2020/03/30 18:58:59 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,19 +99,15 @@ t_color	get_color(int x, int y)
 
 int		ray_intersect(t_vector orig, t_vector dir, t_sphere sphere)
 {
-	t_vector vpc;
 	t_vector point;
-	t_vector d;
 	float t; // множество точек на луче
-	t_vector intersection;
 
-	float tca;
-	float d2;
-	float t_max;
+	t = 0;
 	// dir - точка на луче;
 	// point - точка на луче
 	point = vec_add(orig, vec_scale(dir, t));
-	sphere.radius = vec_sub(point, sphere.center);
+	vec_sub(point, sphere.center);
+	return (0);
 }
 
 t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
