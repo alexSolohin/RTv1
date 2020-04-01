@@ -12,11 +12,12 @@ MINILIB_PATH = ./minilibx_macos
 OBJS_DIR = objs
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-_SRCS = main.c \
+_SRCS = main_mlx.c \
 		init.c \
 		utils.c \
 		controls.c \
-		menu.c
+		menu.c \
+		vectors.c
 SRCS = $(addprefix $(SRCS_DIR)/, $(_SRCS))
 _OBJS = $(_SRCS:%.c=%.o)
 OBJS = $(addprefix $(OBJS_DIR)/, $(_OBJS))

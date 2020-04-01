@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:34:07 by user              #+#    #+#             */
-/*   Updated: 2020/03/30 17:46:33 by user             ###   ########.fr       */
+/*   Updated: 2020/04/01 17:24:00 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,8 @@ typedef	struct		s_rtv1
 	void	*mlx;
 	void	*win;
 	void	*img;
+	int		x;
+	int		y;
 	SDL_Window	*window;
 	char	*pixels_arr;
 	int		*pixels;
@@ -82,4 +84,20 @@ int			ft_close(void *param);
 int			key_press(int key);
 int			init_hook(t_rtv1 *rtv1);
 
+void		put_pixel(t_rtv1 *rtv1, int x, int y, t_color color);
+t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere);
+
+/*
+**			<====================== start vectors.c ======================>
+*/
+float	vec_len(t_vector a);
+float	vec_dot(t_vector a, t_vector b);
+t_vector	vec_add(t_vector a, t_vector b);
+t_vector	vec_scale(t_vector a, float nb);
+float	vec_magn(t_vector a);
+t_vector	vec_sub(t_vector a, t_vector b);
+t_vector	vec_norm(t_vector a);
+/*
+**			<====================== end vectors.c ======================>
+*/
 #endif
