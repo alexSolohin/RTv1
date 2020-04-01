@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/03/30 20:09:24 by user             ###   ########.fr       */
+/*   Updated: 2020/04/01 11:31:33 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,20 +68,26 @@ int		ray_intersect(t_vector orig, t_vector dir, t_sphere sphere)
 	t_vector OC;
 	// dir - точка на луче;
 
-	printf("x = %f y = %f z = %f\n", orig.x, orig.y, orig.z);
-	printf("x = %f y = %f z = %f\n", sphere.center.x, sphere.center.y, sphere.center.z);
-	OC = vec_sub(orig, sphere.center);
-	printf("x = %f y = %f z = %f\n", OC.x, OC.y, OC.z);
+	// printf("x = %f y = %f z = %f\n", orig.x, orig.y, orig.z);
+	// printf("x = %f y = %f z = %f\n", sphere.center.x, sphere.center.y, sphere.center.z);
+	OC = vec_sub(sphere.center, orig);
+	// printf("x = %f y = %f z = %f\n", OC.x, OC.y, OC.z);
 	k1 = vec_dot(dir, dir);
 	k2 = vec_dot(OC, dir) * 2;
 	k3 = vec_dot(OC, OC) - sphere.radius * sphere.radius;
-	printf("k1 = %f, k2 = %f, k3 = %f \n", k1, k2, k3);
-	discriminant = k2 * k2 - 4*k1*k3; // !!!axtung!!! - дискриминант постоянно меньше нуля
-	printf("%f\n", discriminant);
-	if (discriminant < 0)
-		return (0);
-	else
+	// printf("k1 = %f, k2 = %f, k3 = %f \n", k1, k2, k3);
+	discriminant = k2 * k2 - 4 * k1 * k3;
+	discriminant = ABS(discriminant);
+	float t1 = (-k2 + sqrt(discriminant)) / (2 * k1);
+	float t2 = (-k2 - sqrt(discriminant)) / (2 * k1);
+	// printf("t1 = %f t2 = %f\n", t1, t2);
+	// printf("%f\n", discriminant); // !!!axtung!!! - дискриминант постоянно меньше нуля
+	if (t1 < 10000000 && t1 > 0)
 		return (1);
+	else if (t2 < 1000000 && t2 > 0)
+		return (1);
+	else
+		return (0);
 }
 
 t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
@@ -123,9 +129,9 @@ int		main()
 	t_vector dir;
 
 
-	sphere.center.x = 0;
-	sphere.center.y = -1;
-	sphere.center.z = 3;
+	sphere.center.x = 1;
+	sphere.center.y = 1;
+	sphere.center.z = 2;
 	sphere.radius = 1;
 
 	// origin - точка из которой смотрим
@@ -135,15 +141,15 @@ int		main()
 	rtv1 = (t_rtv1 *)malloc(sizeof(t_rtv1));
 	init_sdl(rtv1);
 	j = 0;
-	while (j < 1) // HEIGHT * 2
+	while (j < HEIGHT * 2) // HEIGHT * 2
 	{
-		i =  0;
-		while (i < 3) // WIDTH * 2
+		i = 0;
+		while (i < WIDTH * 2) // WIDTH * 2
 		{
 			// dir - это луч из точки камеры в напраление к сфере
 			dir.x = i;
 			dir.y = j;
-			dir.z = -1;
+			dir.z = 100;
 			vector = cast_ray(origin, dir, sphere);
 			// printf("x = %f y = %f z = %f\n", vector.x, vector.y, vector.z);
 			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), vector.x * (255 / ((float)WIDTH * 2)), vector.z * (100 / ((float)WIDTH * 2)),
