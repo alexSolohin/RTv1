@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:34:07 by user              #+#    #+#             */
-/*   Updated: 2020/04/01 17:24:00 by user             ###   ########.fr       */
+/*   Updated: 2020/04/01 19:13:33 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 
 # define ABS(a) (((a) < 0) ? -(a) : (a))
+# define DIAM(d)	ABS(d) < 0.00001 ? 0 : (d)
 # define VHEIGHT	1200
 # define VWIDTH		1900
 # define WIDTH		1900
@@ -53,7 +54,7 @@ typedef	struct		s_color
 typedef struct s_sphere
 {
 	t_vector	center;
-	int			radius;
+	float		radius;
 	t_color		color;
 }				t_sphere;
 
@@ -85,7 +86,7 @@ int			key_press(int key);
 int			init_hook(t_rtv1 *rtv1);
 
 void		put_pixel(t_rtv1 *rtv1, int x, int y, t_color color);
-t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere);
+t_vector	cast_ray(t_vector *orig, t_vector dir, t_sphere sphere);
 
 /*
 **			<====================== start vectors.c ======================>

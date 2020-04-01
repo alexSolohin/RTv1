@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/04/01 17:21:57 by user             ###   ########.fr       */
+/*   Updated: 2020/04/01 19:06:20 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,12 +145,12 @@ int		main()
 			dir.x = i;	//(2 * (i + 0.5) / (float)WIDTH - 1) * tan(fov / 2) * WIDTH / (float)HEIGHT;
 			dir.y = j;	//(2 * (j + 0.5) / (float)(HEIGHT - 1) * tan(fov/2));
 			dir.z = -1;
+			dir = vec_norm(dir);
 			// printf("x = %f y = %f ", dir.x, dir.y);
 			vector = cast_ray(camera, dir, sphere);
 			// printf("x = %f y = %f z = %f\n", vector.x, vector.y, vector.z);
-
 			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), vector.x * (255 / ((float)WIDTH * 2)), vector.z * (255 / ((float)WIDTH * 2)),
-									 255);
+									255);
 			SDL_RenderDrawPoint(rtv1->rend, i, j);
 			i++;
 		}
