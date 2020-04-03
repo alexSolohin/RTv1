@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/01 17:21:41 by user              #+#    #+#             */
-/*   Updated: 2020/04/01 17:22:01 by user             ###   ########.fr       */
+/*   Updated: 2020/04/03 17:19:21 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,14 @@
 float	vec_len(t_vector a)
 {
 	return (sqrt(pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2)));
+}
+
+t_vector	vec_diff(t_vector a, float nb)
+{
+	a.x /= nb;
+	a.y /= nb;
+	a.z /= nb;
+	return (a);
 }
 
 float	vec_dot(t_vector a, t_vector b)
@@ -47,6 +55,14 @@ t_vector	vec_sub(t_vector a, t_vector b)
 {
 	b = vec_scale(b, -1);
 	return (vec_add(a, b));
+}
+
+t_vector vec_normalize(t_vector a)
+{
+	a.x /= sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	a.y /= sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	a.x /= sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	return (a);
 }
 
 t_vector	vec_norm(t_vector a)

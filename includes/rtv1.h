@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:34:07 by user              #+#    #+#             */
-/*   Updated: 2020/04/01 19:13:33 by user             ###   ########.fr       */
+/*   Updated: 2020/04/03 17:19:46 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,23 @@ typedef	struct		s_color
 	int			channel[4];
 }					t_color;
 
+typedef struct s_light
+{
+	t_vector	position;
+	float		intensity;
+}				t_light;
+
+typedef struct s_material
+{
+	t_vector	difuse_color;
+}				t_material;
+
 typedef struct s_sphere
 {
 	t_vector	center;
 	float		radius;
 	t_color		color;
+	t_material	material;
 }				t_sphere;
 
 typedef	struct		s_rtv1
@@ -86,18 +98,20 @@ int			key_press(int key);
 int			init_hook(t_rtv1 *rtv1);
 
 void		put_pixel(t_rtv1 *rtv1, int x, int y, t_color color);
-t_vector	cast_ray(t_vector *orig, t_vector dir, t_sphere sphere);
+t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere, t_light light);
 
 /*
 **			<====================== start vectors.c ======================>
 */
-float	vec_len(t_vector a);
-float	vec_dot(t_vector a, t_vector b);
-t_vector	vec_add(t_vector a, t_vector b);
-t_vector	vec_scale(t_vector a, float nb);
-float	vec_magn(t_vector a);
-t_vector	vec_sub(t_vector a, t_vector b);
-t_vector	vec_norm(t_vector a);
+float			vec_len(t_vector a);
+float			vec_dot(t_vector a, t_vector b);
+t_vector		vec_add(t_vector a, t_vector b);
+t_vector		vec_scale(t_vector a, float nb);
+float			vec_magn(t_vector a);
+t_vector		vec_sub(t_vector a, t_vector b);
+t_vector		vec_norm(t_vector a);
+t_vector		vec_diff(t_vector a, float nb);
+t_vector 		vec_normalize(t_vector a);
 /*
 **			<====================== end vectors.c ======================>
 */
