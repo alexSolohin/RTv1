@@ -12,7 +12,7 @@ MINILIB_PATH = ./minilibx_macos
 OBJS_DIR = objs
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-_SRCS = main_mlx.c \
+_SRCS = main.c \
 		init.c \
 		utils.c \
 		controls.c \

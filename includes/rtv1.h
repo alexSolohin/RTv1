@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:34:07 by user              #+#    #+#             */
-/*   Updated: 2020/04/03 17:19:46 by user             ###   ########.fr       */
+/*   Updated: 2020/04/12 17:45:05 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,13 @@ typedef struct	s_vector
 	float		y;
 	float		z;
 }				t_vector;
+
+typedef struct s_spvec
+{
+	t_vector	N;
+	t_vector	point;
+}				t_spvec;
+
 
 typedef	struct		s_color
 {

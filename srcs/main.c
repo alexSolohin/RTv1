@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/04/01 19:06:20 by user             ###   ########.fr       */
+/*   Updated: 2020/04/12 18:28:34 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,70 +33,68 @@ t_color	get_color(int x, int y)
 	return (color);
 }
 
-
-
 int		ray_intersect(t_vector orig, t_vector dir, t_sphere sphere)
 {
-	// float k1;
-	// float k2;
-	// float k3;
-	// float discriminant;
-	float t0;
-	t_vector L;
-	// dir - точка на луче;
+	double t;
 
-	// printf("x = %f y = %f z = %f\n", orig.x, orig.y, orig.z);
-	// printf("x = %f y = %f z = %f\n", sphere.center.x, sphere.center.y, sphere.center.z);
-	L = vec_sub(sphere.center, orig);
-	// printf("x = %f y = %f z = %f\n", OC.x, OC.y, OC.z);
-	t0 = 1000000;
-	float tca = vec_dot(L , dir);
-	float d2 = vec_dot(L, L) - tca * tca;
-	d2 *= -1;
-	if (d2 > sphere.radius * sphere.radius)
+	t_vector oc = vec_sub(orig, sphere.center);
+	double b = 2 * vec_dot(oc, dir);
+	double c = vec_dot(oc, oc) - sphere.radius * sphere.radius;
+	double disc = b * b - 4 * c;
+	if (disc < 0)
 		return (0);
-	float thc = sqrtf(sphere.radius * sphere.radius - d2);
-	t0 = tca - thc;
-	float t1 = tca + thc;
-	// printf("tca = %f d2 = %f thc = %f t0 = %f t1 = %f\n", tca, d2, thc, t0, t1);
-	if (t0 < 0)
-		t0 = t1;
-	if (t0 < 0)
-		return (0);
-	return (1);
-
-	// k1 = vec_dot(dir, dir);
-	// k2 = vec_dot(OC, dir) * 2;
-	// k3 = vec_dot(OC, OC) - sphere.radius * sphere.radius;
-	// // printf("k1 = %f, k2 = %f, k3 = %f \n", k1, k2, k3);
-	// discriminant = k2 * k2 - 4 * k1 * k3;
-	// discriminant = ABS(discriminant);
-	// float t1 = (-k2 + sqrt(discriminant)) / (2 * k1);
-	// float t2 = (-k2 - sqrt(discriminant)) / (2 * k1);
-	// // printf("t1 = %f t2 = %f\n", t1, t2);
-	// // printf("%f\n", discriminant); // !!!axtung!!! - дискриминант постоянно меньше нуля
-	// if (t1 < 10000000 && t1 > 0)
-	// 	return (1);
-	// else if (t2 < 1000000 && t2 > 0)
-	// 	return (1);
-	// else
-	// 	return (0);
+	else
+	{
+		disc = sqrt(disc);
+		double t0 = -b - disc;
+		double t1 = -b + disc;
+		t = (t0 < t1) ? t0 : t1;
+		return(1);
+	}
 }
 
-t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere)
+int		scene_intersect(t_vector orig, t_vector dir, t_sphere sphere, t_vector point, t_vector N)
 {
-	t_vector vector;
-
-	vector.x = 1400;
-	vector.y = 700;
-	vector.z = 300;
-	if (!ray_intersect(orig, dir, sphere))
+	float sphere_dist = 10000;
+	float dist_i = 0;
+	if (!ray_intersect(orig, dir, sphere) && dist_i < sphere_dist)
 	{
-		vector.x = 300;
-		vector.y = 700;
-		vector.z = 1400;
+		dist_i = sphere_dist;
+		point = vec_add(orig, vec_scale(dir, dist_i));
+		N = vec_norm(vec_sub(point, sphere.center));
+	}
+	return ((dist_i < 1000) ? 1 : 0);
+}
+
+t_vector	get_normal(t_vector pi, t_sphere sphere)
+{
+	return (vec_diff(vec_sub(pi, sphere.center), sphere.radius));
+}
+
+t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere, t_light light)
+{
+	t_spvec	point;
+	t_vector vector;
+	point.point.x = 0;
+	point.point.y = 0;
+	point.point.z = 0;
+
+	if (!scene_intersect(orig, dir, sphere, point.point, point.N))
+	{
+		vector.x = 0.1 ;
+		vector.y = 0.1 ;		//Background
+		vector.z = 0.1 ;		//Фиолетовый
 		return (vector);
 	}
+	float diffuse_light_intensity = 0;
+	t_vector light_dir = vec_norm(vec_sub(light.position, point.point));
+	// printf("x = %f y = %f z = %f", light_dir.x, light_dir.y, light_dir.z);
+	// printf("x = %f y = %f z = %f", point.N.x, point.N.y, point.N.z);
+	diffuse_light_intensity += light.intensity * vec_dot(light_dir, point.N);
+	// printf("%f\n", diffuse_light_intensity);
+	vector.x = 0.5 * diffuse_light_intensity;
+	vector.y = 0.1 * diffuse_light_intensity;
+	vector.z = 0.9 * diffuse_light_intensity;
 	return (vector);
 }
 
@@ -121,15 +119,19 @@ int		main()
 	t_sphere sphere;
 	t_vector vector;
 	t_vector dir;
-	// float fov = M_PI / 2;
+	t_light lights;
+	float fov = M_PI / 2;
 
+	lights.position.x = 2;
+	lights.position.y = 2;
+	lights.position.z = 2;
+	lights.intensity = 1.5;
 
-	sphere.center.x = -3;
-	sphere.center.y = 0;
-	sphere.center.z = -16;
+	sphere.center.x = 2;
+	sphere.center.y = 2;
+	sphere.center.z = 5;
 	sphere.radius = 2;
 
-	// origin - точка из которой смотрим
 	camera.x = 0;
 	camera.y = 0;
 	camera.z = 0;
@@ -141,15 +143,12 @@ int		main()
 		i = 0;
 		while (i < WIDTH * 2) // WIDTH * 2
 		{
-			// dir - это луч из точки камеры в напраление к сфере
-			dir.x = i;	//(2 * (i + 0.5) / (float)WIDTH - 1) * tan(fov / 2) * WIDTH / (float)HEIGHT;
-			dir.y = j;	//(2 * (j + 0.5) / (float)(HEIGHT - 1) * tan(fov/2));
-			dir.z = -1;
+			dir.x = (2 * (i + 0.5) / (float)WIDTH - 1) * tan(fov / 2) * WIDTH / (float)HEIGHT;
+			dir.y = (2 * (j + 0.5) / (float)(HEIGHT - 1) * tan(fov/2));
+			dir.z = 1;
 			dir = vec_norm(dir);
-			// printf("x = %f y = %f ", dir.x, dir.y);
-			vector = cast_ray(camera, dir, sphere);
-			// printf("x = %f y = %f z = %f\n", vector.x, vector.y, vector.z);
-			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y / ((float)HEIGHT * 2)), vector.x * (255 / ((float)WIDTH * 2)), vector.z * (255 / ((float)WIDTH * 2)),
+			vector = cast_ray(camera, dir, sphere, lights);
+			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y), vector.x * (255), vector.z * (255),
 									255);
 			SDL_RenderDrawPoint(rtv1->rend, i, j);
 			i++;
