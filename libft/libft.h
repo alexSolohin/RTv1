@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmaxima <rmaxima@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/12 11:47:02 by rmaxima           #+#    #+#             */
-/*   Updated: 2019/09/19 17:54:50 by rmaxima          ###   ########.fr       */
+/*   Updated: 2020/06/29 18:42:03 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <string.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include "get_next_line.h"
 
 typedef struct		s_list
 {
@@ -24,6 +25,7 @@ typedef struct		s_list
 	struct s_list	*next;
 }					t_list;
 
+char				**ft_strsplit_2(char const *s, char *c);
 int					ft_strcmp(const char *s1, const char *s2);
 char				*ft_strcpy(char *dst, const char *src);
 size_t				ft_strlen(const char *str);

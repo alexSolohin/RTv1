@@ -3,164 +3,117 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: maximka <maximka@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/13 07:33:48 by user              #+#    #+#             */
-/*   Updated: 2020/04/12 18:28:34 by user             ###   ########.fr       */
+/*   Created: 2020/04/04 20:20:04 by maximka           #+#    #+#             */
+/*   Updated: 2020/06/29 17:28:22 by maximka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// SDL_SetRenderDrawColor(rtv1->rend, 100, 100, i++,
-// 									255); - это невероятно красиво)
-
 #include "rtv1.h"
-#include <stdio.h>
-#include "SDL.h"
 
-t_color	get_color(int x, int y)
+static void		light_on_shape(t_color *color, float i)
 {
-	t_color	color;
+	color->r *= i;
+	color->g *= i;
+	color->b *= i;
+	if (color->r > 255)
+		color->r = 255;
+	if (color->r < 0)
+		color->r = 0;
+	if (color->g > 255)
+		color->g = 255;
+	if (color->g < 0)
+		color->g = 0;
+	if (color->b > 255)
+		color->b = 255;
+	if (color->b < 0)
+		color->b = 0;
+}
 
-	// x = 0;
-	// y = 0;
-	color.channel[0] = 0;
-	color.channel[1] =
-		(255 * (y / HEIGHT));
-	color.channel[2] =
-		(225 * (x / WIDTH));
-	color.channel[3] =
-		(0);
+void			ft_light(t_rtv1 rtv1, t_shape *closest_shape,
+				t_color *color, t_vector p)
+{
+	t_light		*light;
+	float		i;
+
+	i = 0;
+	light = rtv1.light;
+	while (light)
+	{
+		i += add_light(light, closest_shape, &p, rtv1);
+		light = light->next;
+	}
+	light_on_shape(color, i);
+}
+
+static t_color	get_color(t_rtv1 rtv1, int x, int y)
+{
+	t_tclose	close;
+	t_vector	p;
+	t_color		color;
+
+	p = p_vector(rtv1, x, y);
+	close = init_close(rtv1);
+	while (close.shape)
+	{
+		close.t = solution(close.shape, *rtv1.cam, p);
+		if (close.t > 0.001 && close.t < 1000000 &&
+			(close.t < close.t_closest || close.t_closest == 0))
+		{
+			close.closest_shape = close.shape;
+			close.t_closest = close.t;
+			close.closest_shape->t_closest = close.t;
+			color = take_color(close.shape);
+		}
+		else if (close.t_closest == 0)
+		{
+			color = set_color();
+		}
+		close.shape = close.shape->next;
+	}
+	ft_light(rtv1, close.closest_shape, &color, p);
 	return (color);
 }
 
-int		ray_intersect(t_vector orig, t_vector dir, t_sphere sphere)
+int				draw(t_rtv1 rtv1)
 {
-	double t;
+	t_color		color;
+	int			x;
+	int			y;
 
-	t_vector oc = vec_sub(orig, sphere.center);
-	double b = 2 * vec_dot(oc, dir);
-	double c = vec_dot(oc, oc) - sphere.radius * sphere.radius;
-	double disc = b * b - 4 * c;
-	if (disc < 0)
-		return (0);
-	else
+	y = 0;
+	while (y < HEIGHT)
 	{
-		disc = sqrt(disc);
-		double t0 = -b - disc;
-		double t1 = -b + disc;
-		t = (t0 < t1) ? t0 : t1;
-		return(1);
-	}
-}
-
-int		scene_intersect(t_vector orig, t_vector dir, t_sphere sphere, t_vector point, t_vector N)
-{
-	float sphere_dist = 10000;
-	float dist_i = 0;
-	if (!ray_intersect(orig, dir, sphere) && dist_i < sphere_dist)
-	{
-		dist_i = sphere_dist;
-		point = vec_add(orig, vec_scale(dir, dist_i));
-		N = vec_norm(vec_sub(point, sphere.center));
-	}
-	return ((dist_i < 1000) ? 1 : 0);
-}
-
-t_vector	get_normal(t_vector pi, t_sphere sphere)
-{
-	return (vec_diff(vec_sub(pi, sphere.center), sphere.radius));
-}
-
-t_vector	cast_ray(t_vector orig, t_vector dir, t_sphere sphere, t_light light)
-{
-	t_spvec	point;
-	t_vector vector;
-	point.point.x = 0;
-	point.point.y = 0;
-	point.point.z = 0;
-
-	if (!scene_intersect(orig, dir, sphere, point.point, point.N))
-	{
-		vector.x = 0.1 ;
-		vector.y = 0.1 ;		//Background
-		vector.z = 0.1 ;		//Фиолетовый
-		return (vector);
-	}
-	float diffuse_light_intensity = 0;
-	t_vector light_dir = vec_norm(vec_sub(light.position, point.point));
-	// printf("x = %f y = %f z = %f", light_dir.x, light_dir.y, light_dir.z);
-	// printf("x = %f y = %f z = %f", point.N.x, point.N.y, point.N.z);
-	diffuse_light_intensity += light.intensity * vec_dot(light_dir, point.N);
-	// printf("%f\n", diffuse_light_intensity);
-	vector.x = 0.5 * diffuse_light_intensity;
-	vector.y = 0.1 * diffuse_light_intensity;
-	vector.z = 0.9 * diffuse_light_intensity;
-	return (vector);
-}
-
-void		init_sdl(t_rtv1 *rtv1)
-{
-	if (SDL_Init(SDL_INIT_EVERYTHING) >= 0)
-		if ((rtv1->window = SDL_CreateWindow("RTv1", SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN))) // SDL_WINDOW_FULLSCREEN
-			if (!(rtv1->rend = SDL_CreateRenderer(rtv1->window, -1,
-			SDL_RENDERER_ACCELERATED)))
-				printf("no");
-	SDL_SetRenderDrawBlendMode(rtv1->rend, SDL_BLENDMODE_BLEND);
-}
-
-int		main()
-{
-	t_rtv1 *rtv1;
-	SDL_Event event;
-	size_t j;
-	size_t i;
-	t_vector camera;
-	t_sphere sphere;
-	t_vector vector;
-	t_vector dir;
-	t_light lights;
-	float fov = M_PI / 2;
-
-	lights.position.x = 2;
-	lights.position.y = 2;
-	lights.position.z = 2;
-	lights.intensity = 1.5;
-
-	sphere.center.x = 2;
-	sphere.center.y = 2;
-	sphere.center.z = 5;
-	sphere.radius = 2;
-
-	camera.x = 0;
-	camera.y = 0;
-	camera.z = 0;
-	rtv1 = (t_rtv1 *)malloc(sizeof(t_rtv1));
-	init_sdl(rtv1);
-	j = 0;
-	while (j < HEIGHT * 2) // HEIGHT * 2
-	{
-		i = 0;
-		while (i < WIDTH * 2) // WIDTH * 2
+		x = 0;
+		while (x < WIDTH)
 		{
-			dir.x = (2 * (i + 0.5) / (float)WIDTH - 1) * tan(fov / 2) * WIDTH / (float)HEIGHT;
-			dir.y = (2 * (j + 0.5) / (float)(HEIGHT - 1) * tan(fov/2));
-			dir.z = 1;
-			dir = vec_norm(dir);
-			vector = cast_ray(camera, dir, sphere, lights);
-			SDL_SetRenderDrawColor(rtv1->rend, 255 * (vector.y), vector.x * (255), vector.z * (255),
-									255);
-			SDL_RenderDrawPoint(rtv1->rend, i, j);
-			i++;
+			color = get_color(rtv1, x, y);
+			SDL_SetRenderDrawColor(rtv1.sdl.render, color.r,
+								color.g, color.b, color.a);
+			SDL_RenderDrawPoint(rtv1.sdl.render, x, y);
+			x++;
 		}
-		j++;
+		y++;
 	}
-	SDL_RenderPresent(rtv1->rend);
-	while (1) 								//event on keyboard
-		while (SDL_PollEvent(&event))
-			if (event.type == SDL_QUIT ||
-				(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
-				exit(0);
 	return (0);
 }
 
+int				main(int argc, char **argv)
+{
+	t_rtv1		rtv1;
+
+	if (argc != 2)
+		usage();
+	init_rtv1(&rtv1, argv[1]);
+	average_light(rtv1.light);
+	rtv1.angle_x = rad(rtv1.dir->x);
+	rtv1.angle_y = rad(rtv1.dir->y);
+	rtv1.angle_z = rad(rtv1.dir->z);
+	sdl_init(&rtv1);
+	draw(rtv1);
+	SDL_RenderPresent(rtv1.sdl.render);
+	keyboard(rtv1);
+	free_all(rtv1);
+	return (0);
+}

@@ -3,39 +3,68 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: maximka <maximka@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/13 11:01:03 by user              #+#    #+#             */
-/*   Updated: 2020/04/03 16:56:00 by user             ###   ########.fr       */
+/*   Created: 2020/04/06 18:45:12 by maximka           #+#    #+#             */
+/*   Updated: 2020/06/29 17:14:14 by maximka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-int			init_hook(t_rtv1 *rtv1)
+t_light			*init_point(char **elem)
 {
-	mlx_key_hook(rtv1->win, key_press, rtv1);
-	mlx_hook(rtv1->win, 17, 0, ft_close, rtv1);
-	return (0);
+	t_light		*light;
+
+	light = (t_light*)malloc(sizeof(t_light));
+	light->type = 0;
+	light->center.x = ft_atoi_for_float(elem[1]);
+	light->center.y = ft_atoi_for_float(elem[2]);
+	light->center.z = ft_atoi_for_float(elem[3]);
+	light->intensity = ft_atoi_for_float(elem[4]);
+	light->next = NULL;
+	return (light);
 }
 
-void		ft_mlx_win_init(t_rtv1 *rtv1)
+t_lvectors		vectors_init(t_shape *shape, t_light *light, t_vector *p,
+			t_rtv1 rtv1)
 {
-	if (!(rtv1->win = mlx_new_window(rtv1->mlx, WIDTH, HEIGHT, "RTv1")))
-		exit(0);
-	rtv1->img = mlx_new_image(rtv1->mlx, WIDTH, HEIGHT);
-	rtv1->pixels_arr = mlx_get_data_addr(rtv1->img,
-		&rtv1->bits_per_pixel, &rtv1->line_size, &rtv1->endian);
+	t_lvectors	vectors;
+
+	vectors.p_cap.x = rtv1.cam->x + p->x * shape->t_closest;
+	vectors.p_cap.y = rtv1.cam->y + p->y * shape->t_closest;
+	vectors.p_cap.z = rtv1.cam->z + p->z * shape->t_closest;
+	vectors.l.x = light->center.x - vectors.p_cap.x;
+	vectors.l.y = light->center.y - vectors.p_cap.y;
+	vectors.l.z = light->center.z - vectors.p_cap.z;
+	vectors.n = normal_vector(vectors.p_cap, shape);
+	return (vectors);
 }
 
-void	put_pixel(t_rtv1 *rtv1, int x, int y, t_color color)
+void			sdl_init(t_rtv1 *rtv1)
 {
-	int	i;
+	SDL_Init(SDL_INIT_EVERYTHING);
+	rtv1->sdl.win = SDL_CreateWindow("RTv1", 100, 100, WIDTH,
+					HEIGHT, SDL_WINDOW_SHOWN);
+	rtv1->sdl.render = SDL_CreateRenderer(rtv1->sdl.win, -1,
+					SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+}
 
-	i = (x * rtv1->bits_per_pixel / 8)
-		+ (y * rtv1->line_size);
-	rtv1->pixels_arr[i] = color.channel[3];
-	rtv1->pixels_arr[++i] = color.channel[2];
-	rtv1->pixels_arr[++i] = color.channel[1];
-	rtv1->pixels_arr[++i] = color.channel[0];
+void			init_rtv1(t_rtv1 *rtv1, char *name)
+{
+	int			fd;
+
+	rtv1->shape = NULL;
+	rtv1->light = NULL;
+	rtv1->dir = NULL;
+	rtv1->cam = NULL;
+	if ((fd = open(name, O_RDONLY)) == -1)
+		incorrect_scene(*rtv1, NULL, NULL);
+	rtv1->shape = list_of_shapes(*rtv1, fd);
+	rtv1->light = list_of_light(*rtv1, fd);
+	rtv1->cam = define_camera(*rtv1, fd);
+	rtv1->dir = define_dir(*rtv1, fd);
+	close(fd);
+	if (!rtv1->dir || !rtv1->cam)
+		incorrect_scene(*rtv1, NULL, NULL);
 }

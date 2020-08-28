@@ -1,65 +1,153 @@
-NAME = RTv1
-LIBPATH = ./libft
-LIBNAME = -lft
-N_SDLARCH = SDL2-2.0.8.tar.gz
-SDL = ./SDL2-2.0.8/
-D_SDLINC = $(SDL)include
-D_SDLLIB = $(SDL)lib
-L_SDL = `$(SDL)sdl2-config --cflags --libs`
-SRCS_DIR = ./srcs
-IDIR = ./includes
-MINILIB_PATH = ./minilibx_macos
-OBJS_DIR = objs
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror
-_SRCS = main.c \
-		init.c \
-		utils.c \
-		controls.c \
-		menu.c \
-		vectors.c
-SRCS = $(addprefix $(SRCS_DIR)/, $(_SRCS))
-_OBJS = $(_SRCS:%.c=%.o)
-OBJS = $(addprefix $(OBJS_DIR)/, $(_OBJS))
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2020/03/09 22:21:56 by maximka           #+#    #+#              #
+#    Updated: 2020/08/28 12:24:57 by user             ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-# @say -v Fred hello, my name is Stephen Hawking, `date "+DATE: %Y-%m-%d"`
+# NAME = RTv1
 
-BLACK = \033[0;30m
-GREEN = \033[0;32m
-RED = \033[0;31m
-BLINK = \033[5m
-RESET = \033[0m
+# SRC = main.c \
+# 		vector.c\
+# 		useful.c\
+# 		useful2.c\
+# 		light.c\
+# 		parse.c\
+# 		move.c\
+# 		init_vectors.c\
+# 		parse_shape.c\
+# 		init_shape.c\
+# 		init.c\
+# 		free.c\
+# 		errors.c\
+# 		rotate.c\
+# 		matrix.c\
+# 		useful3.c\
+# 		check.c\
+# 		useful4.c\
+# 		useful5.c
 
-all: $(NAME)
-	# @say -v Fred $(NAME) was created
-	@echo "\n$(NAME): $(GREEN)$(NAME) was created"
+# libft = ./libft/libft.a
 
-$(NAME): $(OBJS) $(D_SDLLIB)
-	@make -C $(LIBPATH)
-	@$(CC) $(OBJS) -o $(NAME) $(CFLAGS) -L$(LIBPATH) $(LIBNAME) -L$(MINILIB_PATH) $(LIBS) $(L_SDL) -lmlx -framework OpenGL -framework AppKit
+# FLAGS = -g -Wall -Wextra -Werror
 
-$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c includes/key.h includes/rtv1.h
-	@mkdir -p objs
-	@echo "$(GREEN).$(RESET)\c"
-	@$(CC) -c -o $@ $< $(CFLAGS) $(SDLFLAGS) -I$(IDIR) -I$(LIBPATH) -I$(MINILIB_PATH) -I$(D_SDLINC)
+# SDL = -lSDL2
 
-$(D_SDLLIB):
-	@cd $(SDL); ./configure --prefix=`pwd`/lib
-	@make -C $(SDL)
-	@make -C $(D_SDL) install >/dev/null
+# HEADER = rtv1.h
+
+# OBJ = main.o \
+# 		vector.o\
+# 		useful.o\
+# 		useful2.o\
+# 		light.o\
+# 		parse.o\
+# 		move.o\
+# 		init_vectors.o\
+# 		parse_shape.o\
+# 		init_shape.o\
+# 		init.o\
+# 		free.o\
+# 		errors.o\
+# 		rotate.o\
+# 		matrix.o\
+# 		useful3.o\
+# 		check.o\
+# 		useful4.o\
+# 		useful5.o
+
+# LIB = lib
+
+# all: $(NAME)
+
+# $(NAME): $(LIB) $(OBJ)
+# 	gcc $(SRC) $(FLAGS) -lm -o $(NAME) $(SDL) $(libft)
+
+# $(LIB):
+# 	make -C ./libft/
+
+# %.o:%.c $(HEADER)
+# 	gcc -L libft -lft -o $@ -c $<
+
+# clean:
+# 	make -C libft clean
+# 	rm -f $(OBJ)
+
+# fclean: clean
+# 	make -C libft fclean
+# 	rm -f $(NAME)
+
+# re:fclean all
+
+NAME		:=	RTv1
+DIR_SRC		:=	srcs/
+DIR_BIN		:=	bin/
+DIR_INCLUDE :=	include/
+DIR_LIBFT	:=	libft/
+SDL 		:= -lSDL2
+CC			:=	gcc
+CFLAGS		:=	-g -Wextra -Werror -Wall
+HEADERS		:=	libft.h rtv1.h get_next_line.h
+LIBFT		:=	libft.a
+REMOVE		:=	rm -rf
+
+SRC			:=	main.c \
+		vector.c\
+		useful.c\
+		useful2.c\
+		light.c\
+		parse.c\
+		move.c\
+		init_vectors.c\
+		parse_shape.c\
+		init_shape.c\
+		init.c\
+		free.c\
+		errors.c\
+		rotate.c\
+		matrix.c\
+		useful3.c\
+		check.c\
+		useful4.c\
+		useful5.c
+
+OBJS 		:= $(SRC:.c=.o)
+LIBFT		:= $(addprefix $(DIR_LIBFT), $(LIBFT))
+
+MAKE_LIBFT	:= make -C $(DIR_LIBFT)
+
+vpath %.c $(DIR_SRC)
+vpath %.o $(DIR_BIN)
+vpath %.h $(DIR_INCLUDE)
+
+all: make_lft $(NAME)
+
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(addprefix $(DIR_BIN), $(OBJS)) $(SDL) $(LIBFT) -o $@
+
+$(OBJS):%.o:%.c $(HEADERS) | $(DIR_BIN)
+	$(CC) -c $(CFLAGS) $< -o $(DIR_BIN)$@ -I $(DIR_INCLUDE)
+
+$(DIR_BIN):
+	mkdir -p $@
+
+make_lft:
+	$(MAKE_LIBFT)
 
 clean:
-	# @say -v Fred Go then, there are other worlds than these.
-	@rm -f $(OBJS)
-	@rmdir $(OBJS_DIR)
-	@make -C $(LIBPATH) fclean
-	@echo "$(GREEN).$(RESET)\c"
-	@echo "\n$(NAME): $(RED)$(NAME) was clean$(RESET)"
+	$(REMOVE) $(addprefix $(DIR_BIN), $(OBJS))
+	$(REMOVE) $(DIR_BIN)
+	$(MAKE_LIBFT) clean
 
 fclean: clean
-	@rm -f $(NAME)
-	@make -C $(LIBPATH) fclean
+	$(REMOVE) $(NAME)
+	$(MAKE_LIBFT) fclean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: clean fclean all re
+.SILENT: all $(NAME) $(OBJS) $(DIR_BIN) clean fclean re make_lft
